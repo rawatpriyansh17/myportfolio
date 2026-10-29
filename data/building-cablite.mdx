@@ -1,0 +1,73 @@
+---
+slug: "building-cablite"
+title: "Building CabLite around the way campus travels"
+description: "From scattered ride messages to requests, approvals, real-time chat, and a location system built for BITS Goa."
+date: "2026-10-29"
+author: "Priyansh Rawat"
+image: "/projects/cablite-light.jpg"
+tags: ["CabLite", "Convex", "Next.js", "Product Engineering"]
+---
+
+A trip from campus to the airport sounds simple until the details end up across several chats: who is leaving when, whether a seat is still available, and who is actually coming.
+
+I built CabLite around that problem at BITS Goa. It brings carpooling and rental sharing into one application, with requests, approvals, notifications, and conversations connected to the trip. The project crossed 800 users, and I handled the work from Figma designs through the frontend, backend, and deployment.
+
+## Start with a specific geography
+
+CabLite is deliberately focused on Goa. A useful pickup suggestion might be a campus location, a railway station, a beach, or a familiar student hangout.
+
+I built a curated location dataset with names, coordinates, and categories. MapLibre renders the map, and OSRM supplies route geometry, distance, and duration. Together, they let a student preview a route without turning the product into a generic address-search interface.
+
+There is a tradeoff: a curated dataset needs maintenance. For this product, predictable local suggestions were worth that work.
+
+## A request is not a passenger
+
+One of the central data-model decisions was separating pending requests from confirmed passengers.
+
+```text
+Ride listing
+  -> rider requests a seat
+  -> driver accepts or rejects
+  -> accepted request becomes confirmed participation
+  -> seat count and coordination surfaces update
+```
+
+A pending request should not quietly become a confirmed booking just because a button changed on the client. The Convex backend checks identity, ownership, duplicate requests, ride timing, and seat availability when processing the mutation.
+
+That places the rule where the write happens. A stale browser view cannot be trusted to decide whether the last seat is still free.
+
+Next.js and React handle the interface, Clerk supplies identity, and Convex queries and mutations keep application state reactive. The schema has separate records for rides, requests, passengers, notifications, and chat membership.
+
+## Similar workflows can still need different models
+
+Rental sharing looks a lot like carpooling at first: someone creates a listing and other people ask to join. But a rental also needs vehicle type, transmission, a date range, a total price, and a split count.
+
+I kept rental shares and their participants in separate tables. The UI can present rides and rentals together while the backend preserves their different lifecycle rules.
+
+The [rental-sharing implementation](https://github.com/rawatpriyansh17/cablite-app/commit/c770a79a7388279dfdbc4680322cb83831eb19b6) added creation, requests, accept/reject actions, cancellations, and leaving a rental. Those transitions are the feature, just as much as the listing card is.
+
+## Attach conversations to the trip
+
+CabLite's chats belong to rides or rental shares. Accepted participants get the channel they need, with membership roles, unread counts, and a last-message preview.
+
+This keeps coordination tied to a concrete activity. The driver, passenger, rental owner, and rental member have a reason to be in that conversation.
+
+Notifications follow the same principle. A request notification should remain actionable only while that request is pending and the associated trip is relevant. Filtering stale actions and aggregating message notifications helps the badge describe what needs attention now.
+
+## The default view is a product decision
+
+Some of the most useful changes were small. My commit history includes fixes to stop departed rides appearing in the default search and to show active or leaving-soon carpools first.
+
+Those fixes answer a basic question: when someone opens CabLite, what are they trying to do? Usually they want a ride they can still take. Making that the default is more useful than asking them to filter an archive every time.
+
+Maps also need failure states. Route previews and map tiles depend on external services, so the map component includes timeout handling, retries, and a fallback. A temporary map problem should not make the rest of the ride information disappear.
+
+## What I would build next
+
+Better student verification, route-proximity matching, and notification fallbacks are useful next directions. I would also keep testing transitions such as accepting the last seat, cancelling a trip with participants, and leaving a rental share.
+
+CabLite taught me to treat the state behind the screen as part of the user experience. Clear requests, accurate availability, and conversations with the right people matter as much as the first impression.
+
+- [Try CabLite](https://cablite.xyz)
+- [Source and architecture notes](https://github.com/rawatpriyansh17/cablite-app)
+- [The default carpool visibility fix](https://github.com/rawatpriyansh17/cablite-app/commit/03ecee5b319c91551797e394a65181effa9d29f6)

@@ -1,0 +1,75 @@
+---
+slug: "building-sarthi"
+title: "Building Sarthi: an AI assistant that knows the NGO"
+description: "How I connected an NGO's CMS to a multilingual assistant with Turso vector search, streaming answers, and a visible knowledge-sync workflow."
+date: "2026-10-29"
+author: "Priyansh Rawat"
+image: "/projects/sarthi.png"
+tags: ["Sarthi", "RAG", "Next.js", "Turso"]
+---
+
+Sarthi lives on the Sitaram Seva Sansthan website. Its job is practical: help a visitor find a program, understand donation options, or reach the right page. The interesting engineering problem was keeping its answers connected to information the NGO could actually update.
+
+I had already split the platform into two Next.js applications: the public website and a secured CMS. Adding an assistant meant deciding where its knowledge should live, how updates should reach it, and what it should say when retrieval failed.
+
+## Put knowledge next to the content
+
+The CMS owns posts, events, media, and the latest program flyer. It also owns Sarthi's embeddings. That keeps the content lifecycle and the knowledge lifecycle in the same application.
+
+The public website has a separate database for donation records. I did not turn that database into a second copy of the CMS. Instead, its chat route calls a protected CMS search endpoint from the server. The shared authentication secret stays between the two backends.
+
+The request flow looks like this:
+
+```text
+Visitor's question
+  -> public website /api/chat
+  -> protected CMS /api/ai/search
+  -> query embedding + Turso vector search
+  -> relevant content and source URLs
+  -> streamed answer on the public website
+```
+
+## Updating the assistant means updating its sources
+
+The CMS turns active content and curated site facts into searchable documents. Each document carries a title, content, source type, and URL. Text is split into chunks, embedded, and stored in Turso alongside its source metadata.
+
+The implementation uses `openai/text-embedding-3-small` through AI Gateway, with 1536-dimensional vectors. Before generating embeddings, it hashes the normalized source. An unchanged source can reuse its existing chunks; a changed source is refreshed. Deleted or inactive material must stop appearing in answers too.
+
+That last part matters as much as adding new material. A program that was cancelled should not keep showing up just because its old vector still exists.
+
+## Give the answer somewhere real to point
+
+The public chat route asks the CMS for up to six results, then formats their titles, source types, URLs, and content into the model's context. The answer is streamed with the Vercel AI SDK.
+
+I also include verified site facts for essential navigation, contact information, and donation options. If CMS search fails, the assistant can still use those facts, while its instructions tell it not to invent missing event details.
+
+One surprisingly concrete prompt rule concerns URLs: there is no general `/events` listing page. Upcoming programs belong at `/latest-event`; a past event needs the exact `/events/[slug]` URL from the source. A plausible-looking link is not useful if the page does not exist.
+
+Sarthi can guide visitors to the donation form. It does not process a payment inside the conversation.
+
+## Make failure understandable
+
+The chat route keeps the most recent eight messages, limits the retrieval query to 1,000 characters, caps generated output, and uses a simple in-memory request limiter. Those are useful bounds, although an in-memory limiter is not a shared limit across multiple server instances.
+
+Provider failures also need product copy. A visitor should see a short explanation that the assistant is busy or temporarily unavailable, rather than an SDK exception. The route maps rate-limit and quota errors to readable messages.
+
+For the people editing the website, I added an AI sync indicator in the CMS. It distinguishes learning, synced, paused, and failed states, with a retry action. Saving an event and successfully refreshing its embeddings are separate outcomes; the dashboard should make that visible.
+
+## Language belongs in the workflow
+
+The CMS keeps English as its source of truth. The public website handles Hindi translation, while Sarthi is instructed to reply in the visitor's language, including Hinglish when appropriate. Small chat-interface strings use a local copy map.
+
+This separation lets content editors maintain one version of an event while the public experience supports more than one language.
+
+## What I would improve next
+
+The next useful step is a small evaluation set: questions about upcoming programs, old events, missing information, and donation navigation, with expected sources. I would also move request limits to shared storage before relying on them across a larger deployment.
+
+Building Sarthi made the data lifecycle feel very concrete. A chat box is only one piece. Keeping content current, preserving real links, showing sync failures, and admitting missing information are what make it useful.
+
+## Explore the implementation
+
+- [The commit that introduced Sarthi](https://github.com/rawatpriyansh17/SITARAMSEVASANSTHAN/commit/48a6828a91bb6e75c235eb351f8da180c1bb151c)
+- [Public chat route](https://github.com/rawatpriyansh17/SITARAMSEVASANSTHAN/blob/main/app/api/chat/route.ts)
+- [CMS retrieval and embedding pipeline](https://github.com/rawatpriyansh17/ngocms/blob/main/lib/rag.ts)
+- [Sitaram Seva Sansthan](https://sitaramsevasansthan.org)
