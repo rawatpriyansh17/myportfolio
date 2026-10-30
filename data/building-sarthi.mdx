@@ -4,13 +4,16 @@ title: "Building Sarthi: an AI assistant that knows the NGO"
 description: "How I connected an NGO's CMS to a multilingual assistant with Turso vector search, streaming answers, and a visible knowledge-sync workflow."
 date: "2026-10-29"
 author: "Priyansh Rawat"
-image: "/projects/sarthi.png"
+image: "/blog-images/sarthi-blog.webp"
+imageAlt: "Documents connected to a chat bubble: how Sarthi retrieves CMS knowledge."
 tags: ["Sarthi", "RAG", "Next.js", "Turso"]
 ---
 
 Sarthi lives on the Sitaram Seva Sansthan website. Its job is practical: help a visitor find a program, understand donation options, or reach the right page. The interesting engineering problem was keeping its answers connected to information the NGO could actually update.
 
 I had already split the platform into two Next.js applications: the public website and a secured CMS. Adding an assistant meant deciding where its knowledge should live, how updates should reach it, and what it should say when retrieval failed.
+
+The technique is called retrieval-augmented generation (RAG): first find relevant source material, then ask the model to answer using that material. For Sarthi, those sources are the NGO’s own posts, events, and verified site facts.
 
 ## Put knowledge next to the content
 
