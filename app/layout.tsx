@@ -25,17 +25,17 @@ const doto = Doto({
 export const metadata: Metadata = {
   metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || (process.env.VERCEL_PROJECT_PRODUCTION_URL ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}` : "http://localhost:3000")),
   title: "Priyansh Rawat | Full-stack Developer",
-  description: "Full-stack developer and Computer Science + Physics student at BITS Goa. Building CabLite, Sarthi, and software for real communities.",
+  description: "Priyansh Rawat builds products for campus travel, community donations, and practical AI. Computer Science and Physics student at BITS Goa.",
   openGraph: {
     title: "Priyansh Rawat | Full-stack Developer",
-    description: "Full-stack developer and Computer Science + Physics student at BITS Goa. Building CabLite, Sarthi, and software for real communities.",
+    description: "Priyansh Rawat builds products for campus travel, community donations, and practical AI. Computer Science and Physics student at BITS Goa.",
     siteName: "Priyansh Rawat",
     type: "website",
   },
   twitter: {
     card: "summary",
     title: "Priyansh Rawat | Full-stack Developer",
-    description: "Full-stack developer and Computer Science + Physics student at BITS Goa. Building CabLite, Sarthi, and software for real communities.",
+    description: "Priyansh Rawat builds products for campus travel, community donations, and practical AI. Computer Science and Physics student at BITS Goa.",
   },
 };
 

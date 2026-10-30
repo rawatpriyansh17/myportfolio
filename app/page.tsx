@@ -54,7 +54,7 @@ export default function Home() {
       {/* Cell 1: Banner */}
       <div className="absolute left-0 right-0 md:left-[15%] xl:left-[30%] md:right-[15%] xl:right-[30%] top-0 h-[22vh] z-20 pointer-events-auto overflow-hidden bg-white dark:bg-black shadow-[0_4px_12px_rgba(2,6,23,0.04)] dark:shadow-[0_4px_12px_rgba(2,6,23,0.10)]">
         <Image
-          src="/field-day.jpg"
+          src="/berserk-day.webp"
           alt=""
           fill
           fetchPriority="high"
@@ -65,7 +65,7 @@ export default function Home() {
           className="object-cover object-center dark:hidden"
         />
         <Image
-          src="/field-night.jpg"
+          src="/berserk-night.webp"
           alt=""
           fill
           fetchPriority="high"
@@ -79,7 +79,7 @@ export default function Home() {
         <div className="absolute inset-x-0 bottom-0 h-10 pointer-events-none z-[5] bg-gradient-to-t from-white/90 to-transparent dark:from-black/50 dark:to-transparent" />
         <div className="absolute left-0 top-0 bottom-0 w-8 pointer-events-none z-20 bg-gradient-to-r from-white/90 to-transparent dark:from-black/40 dark:to-transparent" />
         <div className="absolute right-0 top-0 bottom-0 w-8 pointer-events-none z-20 bg-gradient-to-l from-white/90 to-transparent dark:from-black/40 dark:to-transparent" />
-        <div className="absolute bottom-3 right-2 z-30 pointer-events-auto rounded-sm bg-white/70 dark:bg-black/60 backdrop-blur-sm px-1.5 py-0.5">
+        <div className="absolute bottom-3 right-2 z-30 pointer-events-auto">
           <CurrentTime overImage />
         </div>
       </div>
@@ -101,7 +101,7 @@ export default function Home() {
                   priority
                   fetchPriority="high"
                   sizes="(min-width: 640px) 120px, 96px"
-                  className="h-full w-full origin-center translate-y-1 scale-[1.1] object-cover opacity-90 grayscale contrast-100 mix-blend-multiply dark:mix-blend-normal"
+                  className="h-full w-full origin-center translate-y-1 scale-[1.1] object-cover"
                 />
               </div>
             </div>
@@ -125,13 +125,13 @@ export default function Home() {
       {/* Flowing Content Section */}
       <div className="ml-0 mr-0 md:ml-[15%] xl:ml-[30%] md:mr-[15%] xl:mr-[30%] pt-[calc(22vh+112px)] pb-0 px-4 flex flex-col z-10 relative min-h-screen">
         <p className="text-[14px] sm:text-[15px] text-zinc-600 dark:text-zinc-300 leading-relaxed mt-4">
-          Full-stack developer. I build useful software for real communities.
+          I turn everyday problems into products people actually use.
         </p>
 
         <ul className="text-[14px] sm:text-[15px] text-zinc-600 dark:text-zinc-300 leading-relaxed mt-4 pl-4">
-          <li className="flex gap-1.5"><span>•</span><span>Computer Science and Physics student at BITS Goa.</span></li>
-          <li className="flex gap-1.5"><span>•</span><span>I enjoy turning everyday problems into products people can use.</span></li>
-          <li className="flex gap-1.5"><span>•</span><span>Building <span className="font-semibold text-zinc-900 dark:text-white">CabLite</span> and software for <span className="font-semibold text-zinc-900 dark:text-white">Sitaram Seva Sansthan</span>.</span></li>
+          <li className="flex gap-1.5"><span>•</span><span>Computer Science and Physics student at <a href="https://www.bits-pilani.ac.in/goa/" target="_blank" rel="noopener noreferrer" className="underline decoration-zinc-300 dark:decoration-zinc-600 underline-offset-4 hover:text-zinc-900 dark:hover:text-white">BITS Goa</a>.</span></li>
+          <li className="flex gap-1.5"><span>•</span><span>I enjoy solving real-world problems.</span></li>
+          <li className="flex gap-1.5"><span>•</span><span>Currently grinding LeetCode and competitive programming.</span></li>
         </ul>
 
         {/* Buttons */}
@@ -340,12 +340,12 @@ export default function Home() {
         <div className="mt-2 flex flex-col items-center justify-center relative py-6">
           <div className="max-w-[480px] w-full flex flex-col items-center">
             <h3 className="text-[16px] font-medium text-center leading-relaxed text-zinc-500 dark:text-zinc-400 mb-6 italic">
-              &quot;Do so much work that it would be unreasonable<br className="hidden md:block" /> for you to not be successful.&quot;
+              &quot;Keep showing up. Keep learning.<br className="hidden md:block" /> Keep going until it works.&quot;
             </h3>
 
             <div className="flex items-center gap-3 text-[10px] font-medium tracking-[0.2em] text-zinc-400 dark:text-zinc-600 uppercase">
               <div className="w-4 h-[1px] bg-zinc-200 dark:bg-zinc-800" />
-              ALEX HORMOZI
+              HOW I WORK
               <div className="w-4 h-[1px] bg-zinc-200 dark:bg-zinc-800" />
             </div>
           </div>

@@ -2,7 +2,7 @@ import type { ComponentType } from "react";
 import {
   SiNextdotjs, SiTypescript, SiReact, SiTailwindcss, SiClerk, SiTurso,
   SiDrizzle, SiRazorpay, SiVercel, SiPython, SiCplusplus, SiJavascript,
-  SiGit, SiGithub, SiFigma, SiSqlite, SiFramer,
+  SiGit, SiGithub, SiFigma, SiSqlite, SiFramer, SiThreedotjs,
 } from "react-icons/si";
 
 export type TechIcon = ComponentType<{ className?: string }>;
@@ -10,7 +10,7 @@ export const iconMap = {
   next: SiNextdotjs, ts: SiTypescript, react: SiReact, tailwind: SiTailwindcss,
   clerk: SiClerk, turso: SiTurso, drizzle: SiDrizzle, razorpay: SiRazorpay,
   vercel: SiVercel, python: SiPython, cpp: SiCplusplus, js: SiJavascript,
-  git: SiGit, github: SiGithub, figma: SiFigma, sql: SiSqlite, motion: SiFramer,
+  git: SiGit, github: SiGithub, figma: SiFigma, sql: SiSqlite, motion: SiFramer, three: SiThreedotjs,
 };
 export type TechKey = keyof typeof iconMap;
 export type TechItem = TechKey | { label: string; tooltip?: string };
@@ -18,7 +18,7 @@ export const techNames: Record<TechKey, string> = {
   next: "Next.js", ts: "TypeScript", react: "React", tailwind: "Tailwind CSS",
   clerk: "Clerk", turso: "Turso", drizzle: "Drizzle ORM", razorpay: "Razorpay",
   vercel: "Vercel AI SDK", python: "Python", cpp: "C++", js: "JavaScript",
-  git: "Git", github: "GitHub", figma: "Figma", sql: "SQL", motion: "Motion",
+  git: "Git", github: "GitHub", figma: "Figma", sql: "SQL", motion: "Motion", three: "Three.js",
 };
 export const skills = (["react", "next", "ts", "js", "python", "cpp", "sql", "tailwind", "clerk", "turso", "drizzle", "vercel", "motion", "git", "github", "figma"] as TechKey[])
   .map(key => ({ name: techNames[key], icon: iconMap[key] }));
@@ -32,7 +32,8 @@ export interface Project {
   video: string;
   description: string;
   tech: TechItem[];
-  github: string;
+  github?: string;
+  category?: string;
   live: string;
   backgroundImage?: string;
   hasPin: boolean;
@@ -56,22 +57,31 @@ export const projectsData: Project[] = [
     slug: "sitaram-seva-sansthan", title: "Sitaram Seva Sansthan", imageTitle: "NGO website",
     src: "/projects/ngo-og.webp", video: "", hasPin: false,
     backgroundImage: "/image copy.png",
-    description: "An NGO website with donations, multilingual content, and Sarthi, its CMS-backed AI assistant.",
+    description: "A community nonprofit’s website for cancer support and local aid, with donations and Sarthi, its AI assistant.",
     tech: ["next", "ts", "turso", "razorpay", "vercel"],
     github: "https://github.com/rawatpriyansh17/SITARAMSEVASANSTHAN", live: "https://sitaramsevasansthan.org",
-    overview: "The public website connects the NGO's programs, events, and donation options in one place. It reads content from a separate CMS and has helped generate ₹65,000+ in donations. Sarthi is part of this website: a multilingual assistant for finding programs, donation information, and useful links.",
+    overview: "Sitaram Seva Sansthan is a community nonprofit in Indore supporting women facing cancer, families, and students. Its website connects programs, events, and donation options in one place. It reads content from a separate CMS and has helped generate ₹65,000+ in donations. Sarthi is part of this website: a multilingual assistant for finding programs, donation information, and useful links.",
     features: ["Razorpay order creation and signature verification, plus QR and bank-transfer options.", "CMS-managed posts, event galleries, and upcoming-program information.", "English and Hindi content with translation fallbacks.", "Sarthi streams answers grounded in CMS retrieval and verified site facts. Donation records stay separate from the content knowledge base."],
     article: "/blog/building-sarthi",
   },
   {
-    slug: "ngo-cms", title: "NGO Content Studio", imageTitle: "Content management",
+    slug: "ngo-cms", title: "Content Management System", imageTitle: "Content management",
     src: "/projects/cms-og.webp", video: "", hasPin: false,
     backgroundImage: "/image copy 3.png",
-    description: "The NGO's secured dashboard for posts, events, media, and Sarthi's knowledge updates.",
+    description: "A secured publishing dashboard for Sitaram Seva Sansthan, a community nonprofit, and Sarthi’s knowledge updates.",
     tech: ["next", "ts", "clerk", "turso", "drizzle"],
     github: "https://github.com/rawatpriyansh17/ngocms", live: "https://dashboard.sitaramsevasansthan.org",
-    overview: "The CMS gives the NGO control over its public content and media. It also owns the vector knowledge used by Sarthi, so content edits and AI knowledge updates follow the same lifecycle. The live dashboard requires sign-in.",
+    overview: "Built for Sitaram Seva Sansthan’s community aid and health initiatives, this CMS lets the team maintain public content and media without editing code. It also owns the vector knowledge used by Sarthi, so content edits and AI knowledge updates follow the same lifecycle. The live dashboard requires sign-in.",
     features: ["Clerk-protected editing for posts, events, media, and the latest program flyer.", "ImageKit media uploads and ordered galleries.", "Turso/libSQL and Drizzle models with public read APIs for the website.", "Hash-based embedding refresh, protected vector search, and visible AI sync and retry states."],
     article: "/blog/building-sarthi",
+  },
+  {
+    slug: "cube-lab", title: "Cube Lab", imageTitle: "Interactive cube and circular permutation map",
+    src: "/projects/cube-lab.webp", lightModeSrc: "/projects/cube-lab-light.webp", video: "", hasPin: false,
+    category: "Mini project",
+    description: "A just-for-fun 3D Rubik’s Cube with drag-to-turn controls, a synchronized permutation map, and an animated solver.",
+    tech: ["react", "ts", "three"], live: "https://cube-lab-tau.vercel.app",
+    overview: "A small playground for exploring the maths behind a familiar puzzle. I built an integer-coordinate cube model, direct 3D slice manipulation, and a circular map that follows each sticker as the cube turns.",
+    features: ["Drag cube slices, orbit the camera, or enter standard move notation.", "Keep the 3D cube and a 54-sticker circular permutation diagram synchronized during every move.", "Run a two-phase solver in a background Web Worker, then pause, step through, or replay the solution.", "Verify returned solutions against the puzzle model before playback; support light and dark themes and reduced motion."],
   },
 ];

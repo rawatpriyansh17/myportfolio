@@ -1,0 +1,190 @@
+---
+slug: "adding-razorpay-payments"
+title: "Adding Razorpay payments to a Next.js website"
+description: "A practical walkthrough of the NGO donation flow: creating orders, opening Checkout, verifying callbacks, and keeping payment state honest."
+date: "2026-10-30"
+author: "Priyansh Rawat"
+image: "/blog-images/razorpay-payments.webp"
+imageAlt: "A donation heart connected to an order, checkout, and verification step."
+tags: ["Razorpay", "Next.js", "Payments"]
+---
+
+A donation button looks simple. The interesting part is what happens after someone clicks it: an order has to exist, the amount has to stay consistent, and the website needs evidence before it calls the payment successful.
+
+I built this flow for **Sitaram Seva Sansthan**, a nonprofit in Indore that supports women facing cancer and runs community aid initiatives. The site offers Razorpay Checkout alongside QR and bank-transfer options. This article follows the online Checkout path in that implementation.
+
+The examples below explain the integration boundaries. They are focused excerpts and adaptations, not a complete payments backend to paste into production.
+
+## Start with three boundaries
+
+The implementation has three main pieces:
+
+```text
+Donation form
+  → POST /api/create-order
+  → Razorpay Checkout
+  → POST /api/verify-payment
+  → confirmation in the interface
+```
+
+The form collects intent. The server creates the order and checks the response. Razorpay handles the payment interface. My application never asks a donor to enter card details into a form I built.
+
+In the NGO codebase, those pieces live in `donate-checkout.tsx`, `api/create-order/route.ts`, and `api/verify-payment/route.ts`. A small `lib/razorpay.ts` module owns SDK initialization.
+
+## Keep credentials on the server
+
+Start with Razorpay's test credentials and the Node SDK:
+
+```sh
+npm install razorpay
+```
+
+The server reads `RAZORPAY_KEY_ID` and `RAZORPAY_KEY_SECRET` from environment variables. The key ID can be sent to Checkout; the secret stays on the server. These are configuration names, not values to commit to Git.
+
+```ts
+// lib/razorpay.ts — server-side code
+import Razorpay from "razorpay";
+
+export function getRazorpayClient() {
+  const key_id = process.env.RAZORPAY_KEY_ID;
+  const key_secret = process.env.RAZORPAY_KEY_SECRET;
+
+  if (!key_id || !key_secret) {
+    throw new Error("Razorpay is not configured");
+  }
+
+  return new Razorpay({ key_id, key_secret });
+}
+```
+
+My API routes explicitly use the Node.js runtime because verification uses Node's crypto module. The donor-facing interface gets a readable failure message if the gateway is unavailable, rather than the underlying exception.
+
+## Agree on the amount before opening Checkout
+
+For INR, the API uses paise. A ₹500 donation becomes `50000`, not `500`.
+
+The form converts the selected rupee amount to paise. The create-order route validates it again: it must be an integer, at least ₹1, and within the site's ₹10,000 online donation limit. That upper bound is an application choice in this project, not a Razorpay-wide rule.
+
+```ts
+const amount = Number(body.amount);
+
+if (!Number.isInteger(amount) || amount < 100 || amount > 1_000_000) {
+  return Response.json(
+    { error: "Choose a donation between ₹1 and ₹10,000." },
+    { status: 400 },
+  );
+}
+
+const order = await getRazorpayClient().orders.create({
+  amount,
+  currency: "INR",
+  receipt,
+});
+```
+
+A donation lets the visitor choose the amount, within server-enforced limits. A store checkout is different: look up the product price on the server instead of accepting a browser-supplied total.
+
+The NGO route generates a receipt, creates the Razorpay order, and stores its ID, amount, currency, optional donor details, and a local `created` status in the payments table. It returns the order ID, amount, currency, and public key ID to the browser. Those returned values configure Checkout.
+
+## Load Checkout and handle each outcome
+
+I use `next/script` to load Razorpay's hosted script and track when it is ready:
+
+```tsx
+<Script
+  src="https://checkout.razorpay.com/v1/checkout.js"
+  onReady={() => setScriptReady(true)}
+  onError={() => setScriptReady(false)}
+/>
+```
+
+The form does not start a payment until the script is available. While an order is being created, the interface shows progress. After the order response arrives, the client opens Checkout with that order's details.
+
+```ts
+// Simplified client-side excerpt; `order` comes from our server.
+const checkout = new window.Razorpay({
+  key: order.keyId,
+  order_id: order.orderId,
+  amount: order.amount,
+  currency: order.currency,
+  name: "Sitaram Seva Sansthan",
+  description: "Donation",
+  handler: async (result) => {
+    const response = await fetch("/api/verify-payment", {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(result),
+    });
+    // Update the UI only after checking this response.
+    if (!response.ok) throw new Error("Verification needs attention");
+  },
+  modal: { ondismiss: () => resetCheckoutUi() },
+});
+
+checkout.open();
+```
+
+`resetCheckoutUi` represents your own UI reset function. The actual NGO component also prefills donor details, supports anonymous donations, listens for `payment.failed`, and catches verification errors to show a readable message.
+
+Closing the payment window is not the same as a failed charge. A verification request timing out is not proof that no money moved either. I keep those messages distinct so the donor is not pushed into paying twice.
+
+## Verify the callback against your own order
+
+Checkout returns a payment ID, order ID, and signature. Razorpay documents an HMAC-SHA256 check over the original order ID and payment ID. The original order must come from server-controlled storage, and the comparison should reject malformed signatures before using a constant-time check.
+
+Here is the cryptographic part of a stricter verification helper:
+
+```ts
+import { createHmac, timingSafeEqual } from "node:crypto";
+
+export function verifySignature(
+  storedOrderId: string,
+  paymentId: string,
+  signature: string,
+  secret: string,
+) {
+  if (!/^[a-f0-9]{64}$/i.test(signature)) return false;
+
+  const expected = createHmac("sha256", secret)
+    .update(`${storedOrderId}|${paymentId}`)
+    .digest();
+
+  const received = Buffer.from(signature, "hex");
+  return received.length === expected.length &&
+    timingSafeEqual(received, expected);
+}
+```
+
+The surrounding route still has work to do: find an existing order associated with the current checkout, validate the request fields, prevent duplicate processing, and persist the result. The helper alone does not establish that the payment belongs to the right application order.
+
+My current route uses HMAC verification and a timing-safe comparison. The helper above illustrates stricter input validation and a server-stored order ID; it is an improvement pattern, not a claim that every check is already present in the deployed route.
+
+## A valid signature is not the same as capture
+
+The current implementation writes the local label `paid` after signature verification. I would make that state more precise before extending the flow: `signature_verified` describes the callback check, while `captured` describes confirmed payment capture.
+
+For reliable fulfilment, verify the gateway's payment status and reconcile the order, amount, and currency. Add a signed webhook path so a closed tab or interrupted callback cannot leave the database permanently behind. Make updates idempotent: receiving the same successful event twice must not create two donations or two receipts.
+
+Those reconciliation steps are the next hardening work for this project; the routes discussed here do not yet implement a webhook handler. Razorpay's [integration guide](https://razorpay.com/docs/payments/payment-gateway/web-integration/standard/integration-steps/) and [webhook guidance](https://razorpay.com/docs/webhooks/) cover the gateway-side requirements.
+
+## Test the awkward paths too
+
+My test checklist for this flow goes beyond seeing a green success message:
+
+- Try a valid test payment and confirm that its order is recorded.
+- Submit zero, fractional paise, and an amount over the application limit.
+- Close Checkout, then retry without leaving the form stuck in a loading state.
+- Send a malformed signature, an unknown order, and a repeated verification request.
+- Interrupt the network after payment and check that the UI says verification is pending, not that the payment definitely failed.
+- Test failed payments and script-loading errors before switching to live credentials.
+
+For the cases the current implementation does not fully cover, this is a roadmap for the next iteration, not a claim of completed coverage.
+
+The lesson for me was that a payment feature includes its uncertain states. Creating an order and opening a modal gets the happy path working. Clear ownership of payment state, careful verification, and a recovery path make it dependable.
+
+## Explore the implementation
+
+- [NGO donation page](https://sitaramsevasansthan.org/donate)
+- [Create-order route](https://github.com/rawatpriyansh17/SITARAMSEVASANSTHAN/blob/main/app/api/create-order/route.ts)
+- [Checkout component](https://github.com/rawatpriyansh17/SITARAMSEVASANSTHAN/blob/main/app/components/donate-checkout.tsx)
+- [Verification route](https://github.com/rawatpriyansh17/SITARAMSEVASANSTHAN/blob/main/app/api/verify-payment/route.ts)

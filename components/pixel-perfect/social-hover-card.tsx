@@ -6,8 +6,8 @@ import * as HoverCard from "@radix-ui/react-hover-card";
 import { motion, AnimatePresence } from "framer-motion";
 import { cn } from "@/lib/utils";
 import Image, { getImageProps } from "next/image";
-import lightBannerImage from "../../public/field-day.jpg";
-import darkBannerImage from "../../public/field-night.jpg";
+import lightBannerImage from "../../public/berserk-day.webp";
+import darkBannerImage from "../../public/berserk-night.webp";
 
 const bannerImageProps = { width: 250, height: 64, quality: 70, sizes: "250px" } as const;
 const lightBannerPreload = getImageProps({ ...bannerImageProps, alt: "", src: lightBannerImage }).props;
@@ -31,7 +31,7 @@ const socialProfiles: Record<string, SocialProfile> = {
     "name": "Priyansh Rawat",
     "handle": "rawatpriyansh17",
     "avatar": "/github-avatar.png",
-    "bio": "Building CabLite, Sarthi, and full-stack NGO tools.",
+    "bio": "Built CabLite and tools for a community nonprofit. Exploring the next useful problem.",
     "location": "Goa, India",
     "banner": false,
     "stats": []
@@ -132,7 +132,7 @@ export default function SocialHoverCard({ socialName, children }: SocialHoverCar
                             decoding="async"
                             quality={75}
                             sizes="48px"
-                            className="w-full h-full object-cover grayscale opacity-90 contrast-100 mix-blend-multiply dark:mix-blend-normal"
+                            className="w-full h-full object-cover "
                           />
                         </div>
                         {/* Discord active green dot indicator */}
@@ -259,7 +259,7 @@ export default function SocialHoverCard({ socialName, children }: SocialHoverCar
                             decoding="async"
                             quality={75}
                             sizes="56px"
-                            className="w-full h-full object-cover grayscale opacity-90 contrast-100 mix-blend-multiply dark:mix-blend-normal"
+                            className="w-full h-full object-cover "
                           />
                         </div>
                       </div>

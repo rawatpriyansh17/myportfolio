@@ -167,15 +167,18 @@ body {
     z-index: -1;
   }
   ::view-transition-new(root) {
-    mask: url('data:image/svg+xml,<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 40 40"><path d="m20 0 20 35H0z" fill="white"/></svg>') center / 0 no-repeat;
-    animation: scale 0.7s;
-    animation-fill-mode: both;
+    animation: theme-reveal 0.7s var(--expo-out) both;
   }
 
-  @keyframes scale {
-    to {
-      mask-size: 300vmax;
-    }
+  @keyframes theme-reveal {
+    from { clip-path: circle(0% at 50% 30%); }
+    to { clip-path: circle(150% at 50% 30%); }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    ::view-transition-group(root),
+    ::view-transition-old(root),
+    ::view-transition-new(root) { animation: none; }
   }
 
 

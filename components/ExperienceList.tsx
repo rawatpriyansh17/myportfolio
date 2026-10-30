@@ -6,6 +6,8 @@ import Image from "next/image";
 type ExperienceData = {
   title: string;
   role: string;
+  context: string;
+  website: string;
   dates: string;
   location: string;
   src: string;
@@ -22,6 +24,8 @@ const experiences: ExperienceData[] = [
   {
     "title": "Sitaram Seva Sansthan",
     "role": "Full-stack Developer",
+    "context": "Community nonprofit supporting women facing cancer and families in need.",
+    "website": "https://sitaramsevasansthan.org",
     "dates": "Aug 2023 – Jul 2026",
     "location": "Indore, India",
     "src": "/experience/sitaram.png",
@@ -41,6 +45,8 @@ const experiences: ExperienceData[] = [
   {
     "title": "RISE Global Education",
     "role": "Web Scraping Intern",
+    "context": "Research mentorship for high-school students, guided by PhD mentors.",
+    "website": "https://riseglobaleducation.com/",
     "dates": "May 2025 – Jul 2025",
     "location": "Internship",
     "src": "/experience/python.svg",
@@ -138,6 +144,7 @@ export function ExperienceList() {
                   >
                     {item.role}
                   </span>
+                  <span className="text-xs leading-relaxed text-zinc-500 dark:text-zinc-400 mt-1 max-w-sm">{item.context}</span>
                 </div>
               </div>
               <div className="flex flex-col items-start gap-0.5 text-left pr-5 pl-[52px] shrink-0 sm:pl-[56px] 2xl:mt-0 2xl:items-end 2xl:pl-0 2xl:text-right">
@@ -170,6 +177,7 @@ export function ExperienceList() {
                   className={`${isOpen ? "pb-4 pt-0 opacity-100 translate-y-0" : "pb-0 pt-0 opacity-0 -translate-y-2"
                     } transition-all duration-500 ease-[cubic-bezier(0.33,1,0.68,1)] pl-6 pr-8 text-[14px] text-zinc-600 dark:text-zinc-400`}
                 >
+                  <a tabIndex={isOpen ? 0 : -1} href={item.website} target="_blank" rel="noopener noreferrer" className="mb-3 inline-block text-xs underline underline-offset-4">About {item.title} ↗</a>
                   {item.metrics && (
                     <div className="relative -ml-6 -mr-8 mb-4">
                       <div className="grid max-w-full grid-cols-2 pl-6 pr-8 2xl:grid-cols-4">

@@ -22,7 +22,7 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
       <Image src={project.src} alt={project.imageTitle} width={1536} height={864} priority className="w-full aspect-video object-cover rounded-lg" />
       <div className="flex flex-wrap gap-4 my-6 text-sm">
         <a href={project.live} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 underline underline-offset-4">Visit project<ArrowUpRight className="size-4" /></a>
-        <a href={project.github} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 underline underline-offset-4"><SiGithub className="size-4" />Source code</a>
+        {project.github && <a href={project.github} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 underline underline-offset-4"><SiGithub className="size-4" />Source code</a>}
       </div>
       <p className="text-[15px] leading-relaxed text-zinc-600 dark:text-zinc-400">{project.overview}</p>
       <h2 className="text-lg font-semibold mt-8 mb-3">What I built</h2>

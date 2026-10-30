@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useTheme } from "next-themes";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
@@ -35,15 +34,10 @@ export const ProjectCard = ({
   isPriority?: boolean;
 }) => {
   const [hoveredTech, setHoveredTech] = useState<string | null>(null);
-  const { resolvedTheme } = useTheme();
   const router = useRouter();
 
-  const imageSrc = resolvedTheme === "light" && project.lightModeSrc ? project.lightModeSrc : project.src;
-
-  const isNotStarted = false;
-  const isBuilding = false;
-  const statusColor = isNotStarted ? "bg-zinc-400" : isBuilding ? "bg-red-500" : "bg-emerald-500";
-  const statusLabel = isNotStarted ? "Not Started" : isBuilding ? "Building" : "Live";
+  const statusColor = project.category ? "bg-violet-400" : "bg-emerald-500";
+  const statusLabel = project.category ?? "Live";
 
   return (
     <div
@@ -54,23 +48,13 @@ export const ProjectCard = ({
       aria-label={`Read about ${project.title}`}
       onKeyDown={(event) => { if (event.key === "Enter" && event.target === event.currentTarget) router.push(`/projects/${project.slug}`); }}
     >
-      {/* Outer Wrapper exactly like screenshot */}
+      {/* Project cover */}
       <motion.div
-        className="relative w-full aspect-[1.25] rounded-xl border border-black/5 dark:border-white/5 bg-zinc-50/80 dark:bg-[#09090b]/80 shadow-sm p-3.5 pb-0 flex flex-col overflow-hidden transition-[border-color,box-shadow] duration-200 hover:shadow-md hover:border-black/10 dark:hover:border-white/10 sm:aspect-[1.4] sm:p-4 sm:pb-0"
+        className="relative w-full aspect-video rounded-xl border border-black/5 dark:border-white/5 bg-zinc-50/80 dark:bg-[#09090b]/80 shadow-sm p-1 overflow-hidden transition-[border-color,box-shadow] duration-200 hover:shadow-md hover:border-black/10 dark:hover:border-white/10"
         initial="rest"
         whileHover="hover"
         animate="rest"
       >
-        <div className="flex items-center justify-end z-10 min-h-[24px]">
-          {project.hasPin && (
-            <div className="w-6 h-6 rounded-[6px] bg-transparent border border-zinc-200/80 dark:border-zinc-800/80 flex items-center justify-center text-zinc-400 dark:text-zinc-500">
-              <svg viewBox="0 0 24 24" className="w-3.5 h-3.5" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
-                <path d="M12 17v5" /><path d="M9 10.76a2 2 0 0 1-1.11 1.79l-1.78.9A2 2 0 0 0 5 15.24V16a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-.76a2 2 0 0 0-1.11-1.79l-1.78-.9A2 2 0 0 1 15 10.76V7a1 1 0 0 1 1-1 2 2 0 0 0 0-4H8a2 2 0 0 0 0 4 1 1 0 0 1 1 1z" />
-              </svg>
-            </div>
-          )}
-        </div>
-
         {/* Ambient Hover Background */}
         {project.backgroundImage && (
           <div className="absolute inset-0 scale-100 opacity-0 transition-[opacity,transform] duration-200 ease-out group-hover:scale-[1.03] group-hover:opacity-100">
@@ -86,44 +70,43 @@ export const ProjectCard = ({
           </div>
         )}
 
-        <motion.span
-          className="absolute left-1/2 top-1/4 z-30 text-[10px] font-bold uppercase tracking-widest text-white drop-shadow-[0_2px_4px_rgba(0,0,0,0.4)]"
-          variants={{
-            rest: { x: "-50%", y: -8, opacity: 0 },
-            hover: { x: "-50%", y: 0, opacity: 1 },
-          }}
-          transition={{ duration: 0.18, ease: "easeOut" }}
-        >
-          View Project
-        </motion.span>
-
-        {/* Floating screenshot sitting directly at the bottom of the outer wrapper */}
+        {/* Uniform inset keeps the whole cover visible without letterboxing */}
         <motion.div
-          className="absolute bottom-0 left-1/2 z-20 h-[78%] w-[85%] origin-bottom rounded-t-[10px] border border-b-0 border-black/5 bg-white p-0 shadow-[0_-8px_30px_rgba(0,0,0,0.06)] dark:border-white/[0.15] dark:bg-[#0a0a0a] dark:shadow-[0_-8px_30px_rgba(0,0,0,0.5)]"
+          className="relative z-20 size-full rounded-lg overflow-hidden border border-black/5 bg-white dark:border-white/[0.15] dark:bg-[#0a0a0a]"
           variants={{
-            rest: { y: 0, x: "-50%", scale: 1 },
-            hover: { y: 4, x: "-50%", scale: 0.94 },
+            rest: { scale: 1 },
+            hover: { scale: 0.90 },
           }}
           transition={{ duration: 0.2, ease: "easeOut" }}
         >
-          <div className="size-full overflow-hidden rounded-t-[9px]">
+          <div className="size-full overflow-hidden rounded-[7px]">
             <Image
-              src={imageSrc}
+              src={project.src}
               alt={`${project.title} preview`}
               width={600}
               height={400}
               preload={isPriority}
               sizes="(min-width: 768px) 17vw, calc(100vw - 2rem)"
               quality={70}
-              className="size-full object-contain"
+              loading={project.lightModeSrc ? "eager" : undefined}
+              className={`size-full object-cover ${project.lightModeSrc ? "hidden dark:block" : ""}`}
             />
+            {project.lightModeSrc && <Image
+              src={project.lightModeSrc}
+              alt={`${project.title} preview`}
+              width={600}
+              height={400}
+              loading="eager"
+              sizes="(min-width: 1280px) 17vw, (min-width: 768px) 70vw, calc(100vw - 2rem)"
+              className="size-full object-cover dark:hidden"
+            />}
           </div>
         </motion.div>
       </motion.div>
 
       {/* Content Area directly below the wrapper */}
       <div className="mt-4 flex flex-col px-0.5">
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 sm:gap-0">
+        <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-2">
           <h3 className="text-[15px] font-bold text-zinc-900 dark:text-zinc-100 leading-tight">{project.title}</h3>
 
           <div className="flex items-center gap-1.5 px-2 py-0.5 rounded-full border border-zinc-200/50 dark:border-zinc-800/50 bg-white dark:bg-zinc-900/50 w-fit shrink-0">
