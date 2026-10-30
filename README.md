@@ -44,6 +44,8 @@ Contact uses a direct email link. No contact backend or calendar integration is 
 
 ## Deployment
 
+Use npm for installs; `package-lock.json` is the single dependency lockfile. Vercel detects Next.js automatically and uses `npm ci` followed by `npm run build`.
+
 Deploy to a Next.js-compatible host. Vercel supplies the production hostname automatically. On other hosts, set `NEXT_PUBLIC_SITE_URL` to the public origin so social image URLs resolve correctly; see `.env.example`.
 
 Project and blog pages are generated at build time. Commit new MDX or content changes and rebuild to publish them.
