@@ -339,20 +339,20 @@ export default function Home() {
         {/* Minimal Quote Section */}
         <div className="mt-2 flex flex-col items-center justify-center relative py-6">
           <div className="max-w-[480px] w-full flex flex-col items-center">
-            <h3 className="text-[16px] font-medium text-center leading-relaxed text-zinc-500 dark:text-zinc-400 mb-6 italic">
-              &quot;Keep showing up. Keep learning.<br className="hidden md:block" /> Keep going until it works.&quot;
-            </h3>
+            <blockquote cite="https://news.stanford.edu/stories/2005/06/youve-got-find-love-jobs-says" className="text-[16px] font-medium text-center leading-relaxed text-zinc-500 dark:text-zinc-400 mb-4 italic">
+              &quot;The only way to do great work<br className="hidden md:block" /> is to love what you do.&quot;
+            </blockquote>
 
             <div className="flex items-center gap-3 text-[10px] font-medium tracking-[0.2em] text-zinc-400 dark:text-zinc-600 uppercase">
               <div className="w-4 h-[1px] bg-zinc-200 dark:bg-zinc-800" />
-              HOW I WORK
+              <a href="https://news.stanford.edu/stories/2005/06/youve-got-find-love-jobs-says" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-600 dark:hover:text-zinc-400 transition-colors focus-visible:outline focus-visible:outline-offset-4">Steve Jobs</a>
               <div className="w-4 h-[1px] bg-zinc-200 dark:bg-zinc-800" />
             </div>
           </div>
         </div>
 
-        {/* Fading Grid Filler */}
-        <div className="flex-grow w-[calc(100%+32px)] -mx-4 h-[300px] relative mt-4">
+        {/* Compact fading grid finish */}
+        <div className="w-[calc(100%+32px)] -mx-4 h-16 sm:h-20 shrink-0 relative mt-2">
           {/* Top full-width line */}
           <div
             className="absolute top-0 left-[-100vw] right-[-100vw] h-0 border-t border-black/30 dark:border-white/[0.15] pointer-events-none z-10"
