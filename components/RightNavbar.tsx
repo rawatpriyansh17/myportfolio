@@ -20,7 +20,7 @@ export function RightNavbar() {
       { rootMargin: "-20% 0px -60% 0px", threshold: 0.1 }
     );
 
-    const sections = ["experience", "projects", "skills", "blogs"];
+    const sections = ["experience", "projects", "skills", "github", "blogs"];
     sections.forEach((id) => {
       const element = document.getElementById(id);
       if (element) observer.observe(element);
@@ -33,6 +33,7 @@ export function RightNavbar() {
     { name: "Experience", href: "#experience" },
     { name: "Projects", href: "#projects" },
     { name: "Skills", href: "#skills" },
+    { name: "GitHub", href: "#github" },
     { name: "Blog", href: "#blogs" },
   ];
 

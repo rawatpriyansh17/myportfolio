@@ -49,3 +49,13 @@ Use npm for installs; `package-lock.json` is the single dependency lockfile. Ver
 Deploy to a Next.js-compatible host. Vercel supplies the production hostname automatically. On other hosts, set `NEXT_PUBLIC_SITE_URL` to the public origin so social image URLs resolve correctly; see `.env.example`.
 
 Project and blog pages are generated at build time. Commit new MDX or content changes and rebuild to publish them.
+
+## Daily content
+
+The homepage uses hourly incremental static regeneration. Its quote is selected from `data/daily-quotes.ts` by the calendar date in Asia/Kolkata, so everyone sees the same quote and repeated refreshes do not skip ahead. Each quote links to its source. The curated collection repeats after one complete rotation.
+
+Vercel runs `/api/cron/daily-quote` daily at `18:30 UTC` (midnight in India). Set a private `CRON_SECRET` of at least 32 characters in the production environment. The route accepts only Vercel's matching bearer token and invalidates the homepage for regeneration on its next visit. Hobby cron timing can vary within the scheduled hour; hourly revalidation also keeps the quote changing if a run is missed. No daily commits, database, or external quote API are needed. Cron jobs run only in production.
+
+The GitHub calendar fetches public contribution counts for `rawatpriyansh17` through the [GitHub Contributions API](https://github.com/grubersjoe/github-contributions-api), with an hourly cache and an unavailable state if the service fails. It contains no pull-request or commit feed and needs no GitHub token.
+
+Run the date-boundary and rotation checks with `node --experimental-strip-types --test tests/*.test.mjs`.

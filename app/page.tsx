@@ -3,6 +3,8 @@ import { CurrentTime } from "@/components/CurrentTime";
 import { ProjectsGrid } from "@/components/ProjectsGrid";
 import { ExperienceList } from "@/components/ExperienceList";
 import { BlogList } from "@/components/BlogList";
+import { DailyQuote } from "@/components/DailyQuote";
+import { GitHubHeatmap } from "@/components/GitHubHeatmap";
 import { FooterBackground } from "@/components/FooterBackground";
 import { RightNavbar } from "@/components/RightNavbar";
 import { CommandMenu } from "@/components/command-menu";
@@ -19,6 +21,9 @@ const lightBannerPlaceholder =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 11'%3E%3Crect width='32' height='11' fill='%23d9e5e7'/%3E%3C/svg%3E";
 const darkBannerPlaceholder =
   "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 11'%3E%3Crect width='32' height='11' fill='%23071329'/%3E%3C/svg%3E";
+
+// Hourly ISR is a fallback if the daily cron invocation is delayed or missed.
+export const revalidate = 3600;
 
 export default function Home() {
   return (
@@ -290,6 +295,8 @@ export default function Home() {
           </div>
         </div>
 
+        <GitHubHeatmap />
+
         {/* Blogs */}
         <div id="blogs" className="mt-6 flex flex-col relative scroll-mt-24">
           {/* Top full-width line */}
@@ -336,20 +343,7 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Minimal Quote Section */}
-        <div className="mt-2 flex flex-col items-center justify-center relative py-6">
-          <div className="max-w-[480px] w-full flex flex-col items-center">
-            <blockquote cite="https://news.stanford.edu/stories/2005/06/youve-got-find-love-jobs-says" className="text-[16px] font-medium text-center leading-relaxed text-zinc-500 dark:text-zinc-400 mb-4 italic">
-              &quot;The only way to do great work<br className="hidden md:block" /> is to love what you do.&quot;
-            </blockquote>
-
-            <div className="flex items-center gap-3 text-[10px] font-medium tracking-[0.2em] text-zinc-400 dark:text-zinc-600 uppercase">
-              <div className="w-4 h-[1px] bg-zinc-200 dark:bg-zinc-800" />
-              <a href="https://news.stanford.edu/stories/2005/06/youve-got-find-love-jobs-says" target="_blank" rel="noopener noreferrer" className="hover:text-zinc-600 dark:hover:text-zinc-400 transition-colors focus-visible:outline focus-visible:outline-offset-4">Steve Jobs</a>
-              <div className="w-4 h-[1px] bg-zinc-200 dark:bg-zinc-800" />
-            </div>
-          </div>
-        </div>
+        <DailyQuote />
 
         {/* Compact fading grid finish */}
         <div className="w-[calc(100%+32px)] -mx-4 h-16 sm:h-20 shrink-0 relative mt-2">
