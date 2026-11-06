@@ -2,7 +2,7 @@ import type { ComponentType } from "react";
 import {
   SiNextdotjs, SiTypescript, SiReact, SiTailwindcss, SiClerk, SiTurso,
   SiDrizzle, SiRazorpay, SiVercel, SiPython, SiCplusplus, SiJavascript,
-  SiGit, SiGithub, SiFigma, SiSqlite, SiFramer, SiThreedotjs,
+  SiGit, SiGithub, SiFigma, SiSqlite, SiFramer, SiThreedotjs, SiRust,
 } from "react-icons/si";
 
 export type TechIcon = ComponentType<{ className?: string }>;
@@ -10,7 +10,7 @@ export const iconMap = {
   next: SiNextdotjs, ts: SiTypescript, react: SiReact, tailwind: SiTailwindcss,
   clerk: SiClerk, turso: SiTurso, drizzle: SiDrizzle, razorpay: SiRazorpay,
   vercel: SiVercel, python: SiPython, cpp: SiCplusplus, js: SiJavascript,
-  git: SiGit, github: SiGithub, figma: SiFigma, sql: SiSqlite, motion: SiFramer, three: SiThreedotjs,
+  git: SiGit, github: SiGithub, figma: SiFigma, sql: SiSqlite, motion: SiFramer, three: SiThreedotjs, rust: SiRust,
 };
 export type TechKey = keyof typeof iconMap;
 export type TechItem = TechKey | { label: string; tooltip?: string };
@@ -18,7 +18,7 @@ export const techNames: Record<TechKey, string> = {
   next: "Next.js", ts: "TypeScript", react: "React", tailwind: "Tailwind CSS",
   clerk: "Clerk", turso: "Turso", drizzle: "Drizzle ORM", razorpay: "Razorpay",
   vercel: "Vercel AI SDK", python: "Python", cpp: "C++", js: "JavaScript",
-  git: "Git", github: "GitHub", figma: "Figma", sql: "SQL", motion: "Motion", three: "Three.js",
+  git: "Git", github: "GitHub", figma: "Figma", sql: "SQL", motion: "Motion", three: "Three.js", rust: "Rust",
 };
 export const skills = (["react", "next", "ts", "js", "python", "cpp", "sql", "tailwind", "clerk", "turso", "drizzle", "vercel", "motion", "git", "github", "figma"] as TechKey[])
   .map(key => ({ name: techNames[key], icon: iconMap[key] }));
@@ -74,6 +74,23 @@ export const projectsData: Project[] = [
     overview: "Built for Sitaram Seva Sansthan’s community aid and health initiatives, this CMS lets the team maintain public content and media without editing code. It also owns the vector knowledge used by Sarthi, so content edits and AI knowledge updates follow the same lifecycle. The live dashboard requires sign-in.",
     features: ["Clerk-protected editing for posts, events, media, and the latest program flyer.", "ImageKit media uploads and ordered galleries.", "Turso/libSQL and Drizzle models with public read APIs for the website.", "Hash-based embedding refresh, protected vector search, and visible AI sync and retry states."],
     article: "/blog/building-sarthi",
+  },
+  {
+    slug: "typedef", title: "typedef", imageTitle: "typedef — typing practice in your terminal",
+    src: "/projects/typedef-og.webp", video: "", hasPin: false,
+    category: "Open source",
+    description: "Offline typing practice in your terminal, with nine modes, weak-key training, and progress that stays on your machine.",
+    tech: ["rust", { label: "Ratatui" }, { label: "Crossterm" }, { label: "Serde" }],
+    github: "https://github.com/rawatpriyansh17/typedef", live: "https://typedef-cli.vercel.app",
+    overview: "I built typedef to make typing practice part of a developer’s everyday terminal workflow. Written in Rust with Ratatui and Crossterm, it combines focused practice with personal records, daily quests, and an ongoing progression system. Practice works offline, and settings, history, and key-level error data are saved locally without an account. Both the tpdf and typedef commands open the same app.",
+    features: [
+      "Nine practice modes, including timed tests, code snippets, custom files, endless practice, and a reproducible daily challenge.",
+      "Weak-key practice targets your most error-prone characters, with live WPM, accuracy, pace charts, and a per-key error heatmap.",
+      "Personal records grouped by practice settings, daily quests, achievements, and six repeating badge tracks with no final tier.",
+      "28 themes, configurable terminal layouts, and QWERTY, Dvorak, and Colemak keyboard guides.",
+      "Local JSON profiles protected by an exclusive process lock and atomic saves, plus text imports and progress export.",
+      "Prebuilt releases for macOS, Linux, and Windows, with a checksum-verifying installer and Homebrew support for macOS and Linux.",
+    ],
   },
   {
     slug: "cube-lab", title: "Cube Lab", imageTitle: "Interactive cube and circular permutation map",
