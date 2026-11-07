@@ -3766,6 +3766,7 @@
       v.root.querySelector('[data-a="tour"]').hidden = true;
       v.root.querySelector('[data-a="speed"]').hidden = true;
       this.tour = false;
+      emit("swarm:complete");
     }
 
     destroy(reveal) {

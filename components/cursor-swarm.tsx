@@ -22,11 +22,16 @@ export function CursorSwarm() {
   const timer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const finishTimer = useRef<ReturnType<typeof setTimeout> | undefined>(undefined);
   const hasPlayed = useRef(false);
+  const automaticRun = useRef(false);
+  const buildComplete = useRef(false);
   const previousFocus = useRef<HTMLElement | null>(null);
   const restoreInert = useRef<boolean | null>(null);
 
   const restorePage = useCallback(() => {
     clearTimeout(finishTimer.current);
+    finishTimer.current = undefined;
+    automaticRun.current = false;
+    buildComplete.current = false;
     if (restoreInert.current !== null) {
       document.body.inert = restoreInert.current;
       restoreInert.current = null;
@@ -52,6 +57,8 @@ export function CursorSwarm() {
 
     previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     swarm.start();
+    automaticRun.current = automatic;
+    buildComplete.current = false;
     const overlay = document.querySelector<HTMLElement>("swarm-rebuild");
     // The swarm mounts an opaque canvas synchronously before this cover clears.
     releaseSwarmIntro();
@@ -62,8 +69,6 @@ export function CursorSwarm() {
     overlay.setAttribute("aria-modal", "true");
     overlay.setAttribute("aria-label", "Rebuilding this page with cursors. Press Escape to exit.");
     overlay.shadowRoot?.querySelector<HTMLButtonElement>('[data-a="close"]')?.focus();
-    // The initial visit is a short intro; explicit replays keep the full interactive tour.
-    if (automatic) finishTimer.current = setTimeout(() => swarm.stop(true), 12000);
   }, []);
 
   useEffect(() => {
@@ -75,6 +80,54 @@ export function CursorSwarm() {
     }, 0);
     return () => clearTimeout(timer.current);
   }, [ready, start, pathname]);
+
+  useEffect(() => {
+    const cancelFinish = () => {
+      clearTimeout(finishTimer.current);
+      finishTimer.current = undefined;
+    };
+    const canFinish = () => {
+      const page = document.scrollingElement;
+      return automaticRun.current && buildComplete.current &&
+        window.SwarmCursors?.isRunning() && !document.hidden && page &&
+        page.scrollTop + window.innerHeight >= page.scrollHeight - 24;
+    };
+    const finishWhenViewed = () => {
+      if (!canFinish()) {
+        cancelFinish();
+        return;
+      }
+      if (finishTimer.current !== undefined) return;
+      // Leave a moment to see the finished bottom section before revealing the live page.
+      finishTimer.current = setTimeout(() => {
+        finishTimer.current = undefined;
+        if (canFinish()) window.SwarmCursors?.stop(true);
+      }, 1500);
+    };
+    const onComplete = () => {
+      buildComplete.current = true;
+      finishWhenViewed();
+    };
+    const onStart = () => {
+      // The engine's own Replay button is also an explicit, manual replay.
+      cancelFinish();
+      buildComplete.current = false;
+      automaticRun.current = false;
+    };
+    window.addEventListener("swarm:start", onStart);
+    window.addEventListener("swarm:complete", onComplete);
+    window.addEventListener("scroll", finishWhenViewed, { passive: true });
+    window.addEventListener("resize", finishWhenViewed);
+    document.addEventListener("visibilitychange", finishWhenViewed);
+    return () => {
+      cancelFinish();
+      window.removeEventListener("swarm:start", onStart);
+      window.removeEventListener("swarm:complete", onComplete);
+      window.removeEventListener("scroll", finishWhenViewed);
+      window.removeEventListener("resize", finishWhenViewed);
+      document.removeEventListener("visibilitychange", finishWhenViewed);
+    };
+  }, []);
 
   useEffect(() => {
     const replay = () => {
