@@ -1703,6 +1703,8 @@
       this._rulersOn = false;
 
       const pb = env.pageBg;
+      // Cover the live page immediately, including before the first animation frame.
+      this.host.style.setProperty("background-color", pb.color, "important");
       this.bg.style.backgroundColor = pb.color;
       const rgb = (pb.color.match(/[\d.]+/g) || [255, 255, 255]).map(Number);
       const lum = (0.2126 * rgb[0] + 0.7152 * rgb[1] + 0.0722 * rgb[2]) / 255;
@@ -1714,6 +1716,10 @@
         this.bg.style.backgroundRepeat = pb.repeat;
       }
       this.makeIntroLogo();
+      // Match the already-visible loading image without fading/scaling it in again.
+      if (document.documentElement.hasAttribute("data-swarm-intro")) {
+        this.intro.classList.add("on");
+      }
       document.documentElement.appendChild(host);
       this.measure();
     }

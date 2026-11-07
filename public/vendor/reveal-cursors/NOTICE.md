@@ -10,5 +10,7 @@ See CREDITS.md for the original attribution.
 
 Local integration changes: accessible exit button text and keyboard focus ring;
 responsive playback controls; full-color intro image; stop and remove the overlay if initialization fails.
+The overlay has an opaque background from mount to avoid exposing the live page during startup.
+Initial playback preserves the loading cover's rounded image without replaying its entrance transition.
 The React controller handles initial playback,
 replay, reduced-motion preferences, focus restoration and route-change cleanup.

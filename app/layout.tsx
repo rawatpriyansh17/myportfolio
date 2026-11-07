@@ -5,6 +5,7 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Analytics } from '@vercel/analytics/next';
 import { SpeedInsights } from '@vercel/speed-insights/next';
 import { CursorSwarm } from "@/components/cursor-swarm";
+import { swarmIntroBootstrap } from "@/lib/swarm-intro";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -51,6 +52,9 @@ export default function RootLayout({
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} ${doto.variable} h-full antialiased`}
     >
+      <head>
+        <script dangerouslySetInnerHTML={{ __html: swarmIntroBootstrap }} />
+      </head>
       <body className="min-h-full flex flex-col dark:bg-black dark:text-zinc-50 transition-colors duration-300">
         <ThemeProvider
           attribute="class"

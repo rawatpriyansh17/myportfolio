@@ -4,6 +4,7 @@ import Script from "next/script";
 import { usePathname } from "next/navigation";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { REBUILD_EVENT } from "@/lib/rebuild-page";
+import { releaseSwarmIntro } from "@/lib/swarm-intro";
 
 declare global {
   interface Window {
@@ -38,14 +39,22 @@ export function CursorSwarm() {
 
   const start = useCallback((automatic: boolean) => {
     const swarm = window.SwarmCursors;
-    if (!swarm || swarm.isRunning()) return;
+    if (!swarm || swarm.isRunning()) {
+      if (automatic) releaseSwarmIntro();
+      return;
+    }
     // Never interrupt a dialog or a visitor who requested reduced motion on load.
     if (automatic && (document.hidden || document.querySelector('[role="dialog"]') ||
-      window.matchMedia("(prefers-reduced-motion: reduce)").matches)) return;
+      window.matchMedia("(prefers-reduced-motion: reduce)").matches)) {
+      releaseSwarmIntro();
+      return;
+    }
 
     previousFocus.current = document.activeElement instanceof HTMLElement ? document.activeElement : null;
     swarm.start();
     const overlay = document.querySelector<HTMLElement>("swarm-rebuild");
+    // The swarm mounts an opaque canvas synchronously before this cover clears.
+    releaseSwarmIntro();
     if (!overlay) return;
     restoreInert.current = document.body.inert;
     document.body.inert = true;
@@ -58,13 +67,14 @@ export function CursorSwarm() {
   }, []);
 
   useEffect(() => {
-    if (!ready || hasPlayed.current) return;
+    if (!ready || hasPlayed.current || pathname !== "/" ||
+      !document.documentElement.hasAttribute("data-swarm-intro")) return;
     timer.current = setTimeout(() => {
       hasPlayed.current = true;
       start(true);
-    }, 900);
+    }, 0);
     return () => clearTimeout(timer.current);
-  }, [ready, start]);
+  }, [ready, start, pathname]);
 
   useEffect(() => {
     const replay = () => {
@@ -87,6 +97,7 @@ export function CursorSwarm() {
   }, [start, restorePage]);
 
   useEffect(() => {
+    if (pathname !== "/") releaseSwarmIntro();
     return () => {
       clearTimeout(timer.current);
       clearTimeout(finishTimer.current);
@@ -96,5 +107,5 @@ export function CursorSwarm() {
   }, [pathname, restorePage]);
 
   return <Script src="/vendor/reveal-cursors/swarm-cursors.js" strategy="afterInteractive"
-    data-trigger="none" data-hotkey="" onReady={() => setReady(true)} />;
+    data-trigger="none" data-hotkey="" onReady={() => setReady(true)} onError={releaseSwarmIntro} />;
 }

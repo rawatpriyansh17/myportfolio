@@ -4,6 +4,32 @@
 
 @custom-variant dark (&:where(.dark, .dark *));
 
+/* Cover the first homepage paint without hiding the DOM the swarm snapshots. */
+html[data-swarm-intro="pending"]::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 2147483646;
+  background: #fff;
+}
+
+html.dark[data-swarm-intro="pending"]::before {
+  background-color: #000;
+}
+
+html[data-swarm-intro="pending"]::after {
+  content: "";
+  position: fixed;
+  left: 50%;
+  top: 50%;
+  width: 60px;
+  height: 60px;
+  transform: translate(-50%, -50%);
+  z-index: 2147483646;
+  border-radius: 14px;
+  background: url("/icon.png") center / contain no-repeat;
+}
+
 @theme inline {
   --color-background: #ffffff;
   --color-foreground: #000000;
