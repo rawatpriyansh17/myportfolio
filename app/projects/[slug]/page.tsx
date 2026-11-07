@@ -3,6 +3,7 @@ import Link from "next/link";
 import { notFound } from "next/navigation";
 import { ArrowUpRight } from "lucide-react";
 import { SiGithub } from "react-icons/si";
+import { TypedefDetails } from "@/components/TypedefDetails";
 import { PageFrame } from "@/components/PageFrame";
 import { projectsData, techNames } from "@/data/projectsData";
 export function generateStaticParams() { return projectsData.map(project => ({ slug: project.slug })); }
@@ -25,8 +26,10 @@ export default async function ProjectPage({ params }: { params: Promise<{ slug: 
         {project.github && <a href={project.github} target="_blank" rel="noopener noreferrer" className="inline-flex items-center gap-1.5 underline underline-offset-4"><SiGithub className="size-4" />Source code</a>}
       </div>
       <p className="text-[15px] leading-relaxed text-zinc-600 dark:text-zinc-400">{project.overview}</p>
+      {project.slug === "typedef" ? <TypedefDetails features={project.features} /> : <>
       <h2 className="text-lg font-semibold mt-8 mb-3">What I built</h2>
       <ul className="space-y-3 pl-5 list-disc text-sm leading-relaxed text-zinc-600 dark:text-zinc-400">{project.features.map(feature => <li key={feature}>{feature}</li>)}</ul>
+      </>}
       <h2 className="text-lg font-semibold mt-8 mb-3">Technologies</h2>
       <p className="text-sm text-zinc-600 dark:text-zinc-400">{project.tech.map(tech => typeof tech === "string" ? techNames[tech] : tech.label).join(" · ")}</p>
       {project.article && <Link href={project.article} className="inline-flex items-center gap-2 mt-8 text-sm underline underline-offset-4">Read the engineering story<ArrowUpRight className="size-4" /></Link>}
