@@ -13,7 +13,7 @@ import { ArrowLeft } from "lucide-react";
 export default function AllProjectsPage() {
   return (
     <>
-      <div className="min-h-screen w-full bg-white dark:bg-black relative overflow-x-hidden transition-colors duration-300">
+      <div className="min-h-screen w-full [--page-banner-height:clamp(96px,14vh,160px)] bg-white dark:bg-black relative overflow-x-hidden transition-colors duration-300">
         {/* Right Side Blueprint Navigation */}
         <RightNavbar />
 
@@ -22,15 +22,15 @@ export default function AllProjectsPage() {
         <div className="absolute top-0 bottom-0 right-[15%] xl:right-[30%] w-0 border-r border-black/30 dark:border-white/[0.15] pointer-events-none hidden md:block" style={{ maskImage: 'repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)', WebkitMaskImage: 'repeating-linear-gradient(to bottom, black 0, black 1px, transparent 1px, transparent 6px)' }} />
 
         {/* Horizontal Lines - Ultra-fine Micro Dots */}
-        <div className="absolute left-0 right-0 top-[22vh] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)', WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)' }} />
-        <div className="absolute left-0 right-0 top-[calc(22vh+112px)] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)', WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)' }} />
+        <div className="absolute left-0 right-0 top-[var(--page-banner-height)] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)', WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)' }} />
+        <div className="absolute left-0 right-0 top-[calc(var(--page-banner-height)+112px)] h-0 border-b border-black/30 dark:border-white/[0.15] pointer-events-none" style={{ maskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)', WebkitMaskImage: 'repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)' }} />
 
         {/* Ultra-Tiny Solid Nodes */}
         {[
-          { top: '22vh', left: 'var(--page-gutter)' },
-          { top: '22vh', right: 'var(--page-gutter)' },
-          { top: 'calc(22vh + 112px)', left: 'var(--page-gutter)' },
-          { top: 'calc(22vh + 112px)', right: 'var(--page-gutter)' },
+          { top: 'var(--page-banner-height)', left: 'var(--page-gutter)' },
+          { top: 'var(--page-banner-height)', right: 'var(--page-gutter)' },
+          { top: 'calc(var(--page-banner-height) + 112px)', left: 'var(--page-gutter)' },
+          { top: 'calc(var(--page-banner-height) + 112px)', right: 'var(--page-gutter)' },
         ].map((pos, i) => (
           <div key={i} className="absolute w-[2px] h-[2px] bg-black/50 dark:bg-white/[0.25] pointer-events-none z-10 hidden md:block"
             style={{
@@ -42,7 +42,7 @@ export default function AllProjectsPage() {
         ))}
 
         {/* Cell 1: Dot Matrix Background */}
-        <div className="absolute left-0 right-0 md:left-[15%] xl:left-[30%] md:right-[15%] xl:right-[30%] top-0 h-[22vh] -z-0 pointer-events-auto">
+        <div className="absolute left-0 right-0 md:left-[15%] xl:left-[30%] md:right-[15%] xl:right-[30%] top-0 h-[var(--page-banner-height)] -z-0 pointer-events-auto">
           <FooterBackground />
           <div className="absolute bottom-3 right-2 z-10 pointer-events-auto">
             <CurrentTime />
@@ -50,7 +50,7 @@ export default function AllProjectsPage() {
         </div>
 
         {/* Cell 2: Header with Back Button + Title + Controls */}
-        <div className="absolute left-0 right-0 md:left-[15%] xl:left-[30%] md:right-[15%] xl:right-[30%] top-[22vh] h-[112px] flex items-center px-4 z-50">
+        <div className="absolute left-0 right-0 md:left-[15%] xl:left-[30%] md:right-[15%] xl:right-[30%] top-[var(--page-banner-height)] h-[112px] flex items-center px-4 z-50">
           <div className="flex w-full items-center justify-between">
             {/* Left: Back + Title */}
             <div className="flex items-center gap-5">
@@ -81,7 +81,7 @@ export default function AllProjectsPage() {
 
         {/* Content Section */}
         <div
-          className="ml-0 mr-0 md:ml-[15%] xl:ml-[30%] md:mr-[15%] xl:mr-[30%] pt-[calc(22vh+112px)] pb-16 px-4 flex flex-col z-10 relative"
+          className="ml-0 mr-0 md:ml-[15%] xl:ml-[30%] md:mr-[15%] xl:mr-[30%] pt-[calc(var(--page-banner-height)+112px)] pb-16 px-4 flex flex-col z-10 relative"
         >
           <div className="relative pt-6 pb-6">
             {/* Center Vertical Line */}

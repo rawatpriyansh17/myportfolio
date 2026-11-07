@@ -119,7 +119,7 @@ export default function Home() {
             </div>
           </div>
 
-          <div className="flex items-start justify-end gap-2 sm:gap-3 h-20 sm:h-24 py-1">
+          <div className="absolute right-4 top-3 flex items-start justify-end gap-2 sm:gap-3 py-1">
             <CommandMenu />
             <ThemeToggle className="dark:text-zinc-400 hover:dark:text-zinc-300" />
           </div>

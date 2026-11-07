@@ -14,7 +14,8 @@ import {
     CornerDownLeft,
     Copy,
     Briefcase,
-    BookOpen
+    BookOpen,
+    RotateCcw
 } from "lucide-react"
 
 import {
@@ -27,6 +28,7 @@ import {
     CommandSeparator,
     CommandShortcut,
 } from "@/components/ui/command"
+import { rebuildPage } from "@/lib/rebuild-page"
 
 export function CommandMenu() {
     const [open, setOpen] = React.useState(false)
@@ -104,6 +106,18 @@ export function CommandMenu() {
     return (
         <>
             <button
+                type="button"
+                onClick={rebuildPage}
+                title="Replay the cursor swarm on this page"
+                className="relative group shrink-0 cursor-pointer rounded-[5px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 motion-safe:active:scale-95"
+            >
+                <span className="absolute -inset-[4.5px] rounded-[9px] border border-black/5 dark:border-white/5 pointer-events-none group-hover:border-black/10 dark:group-hover:border-white/10" />
+                <span className="relative flex items-center gap-1 px-2 py-1 rounded-[5px] border border-black/5 dark:border-white/5 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 text-[11px] leading-none font-medium font-mono shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80">
+                    <RotateCcw aria-hidden="true" className="h-[11px] w-[11px]" />
+                    <span className="leading-none mt-[0.5px]">Rebuild</span>
+                </span>
+            </button>
+            <button
                 aria-label="Open command menu"
                 onClick={() => setOpen(true)}
                 className="relative group cursor-pointer transition-all duration-300 active:scale-95"
@@ -160,6 +174,10 @@ export function CommandMenu() {
                     <CommandSeparator className="my-2" />
 
                     <CommandGroup heading="General">
+                        <CommandItem onSelect={() => runCommand(rebuildPage)} className="rounded-lg py-3 cursor-pointer">
+                            <RotateCcw className="mr-2 h-4 w-4 text-zinc-500" />
+                            <span>Rebuild this page</span>
+                        </CommandItem>
                         <CommandItem onSelect={() => runCommand(() => {
                             navigator.clipboard.writeText(window.location.href)
                         })} className="rounded-lg py-3 cursor-pointer">
