@@ -1,28 +1,6 @@
-export type Contribution = { date: string; count: number; level: number };
-
-export const GITHUB_PROFILE = "https://github.com/rawatpriyansh17";
-
-export function parseContributions(data: unknown): Contribution[] {
-  if (!data || typeof data !== "object" || !("contributions" in data) || !Array.isArray(data.contributions)) {
-    throw new Error("Invalid GitHub contribution response");
-  }
-  const days: Contribution[] = data.contributions.map((day: unknown) => {
-    if (!day || typeof day !== "object" || !("date" in day) || !("count" in day) || !("level" in day)
-      || typeof day.date !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(day.date)
-      || !Number.isFinite(Date.parse(day.date))
-      || new Date(day.date).toISOString().slice(0, 10) !== day.date
-      || typeof day.count !== "number" || !Number.isInteger(day.count) || day.count < 0
-      || typeof day.level !== "number" || !Number.isInteger(day.level) || day.level < 0 || day.level > 4) {
-      throw new Error("Invalid GitHub contribution day");
-    }
-    return { date: day.date, count: day.count, level: day.level };
-  });
-  days.sort((a, b) => a.date.localeCompare(b.date));
-  if (!days.length || days.length > 371 || new Set(days.map(day => day.date)).size !== days.length) {
-    throw new Error("Invalid GitHub contribution calendar");
-  }
-  return days;
-}
+import { parseContributions, type Contribution } from "../lib/github-calendar.ts";
+export { parseContributions, GITHUB_PROFILE } from "../lib/github-calendar.ts";
+export type { Contribution } from "../lib/github-calendar.ts";
 
 export function parseGitHubCalendar(html: string): Contribution[] {
   const attribute = (tag: string, name: string) =>
@@ -50,6 +28,20 @@ export async function getContributions(): Promise<Contribution[] | null> {
     { url: "https://github.com/users/rawatpriyansh17/contributions", parse: async (response: Response) => parseGitHubCalendar(await response.text()) },
     { url: "https://github-contributions-api.jogruber.de/v4/rawatpriyansh17?y=last", parse: async (response: Response) => parseContributions(await response.json()) },
   ];
+  if (process.env.GITHUB_TOKEN) {
+    try {
+      const response = await fetch("https://api.github.com/graphql", {
+        method: "POST",
+        headers: { Authorization: `Bearer ${process.env.GITHUB_TOKEN}`, "Content-Type": "application/json" },
+        body: JSON.stringify({ query: `query { user(login: "rawatpriyansh17") { contributionsCollection { contributionCalendar { weeks { contributionDays { date contributionCount contributionLevel } } } } } }` }),
+        next: { revalidate: 3600 },
+        signal: AbortSignal.timeout(8000),
+      });
+      if (response.ok) return parseGraphQLCalendar(await response.json());
+    } catch {
+      // Public sources below remain available without an API credential.
+    }
+  }
   for (const source of sources) {
     try {
       const response = await fetch(source.url, {
@@ -64,4 +56,14 @@ export async function getContributions(): Promise<Contribution[] | null> {
     }
   }
   return null;
+}
+
+export function parseGraphQLCalendar(data: unknown): Contribution[] {
+  const response = data as { errors?: unknown; data?: { user?: { contributionsCollection?: { contributionCalendar?: { weeks?: { contributionDays: { date: string; contributionCount: number; contributionLevel: string }[] }[] } } } } };
+  const weeks = response?.data?.user?.contributionsCollection?.contributionCalendar?.weeks;
+  if (response?.errors || !Array.isArray(weeks)) throw new Error("Invalid GitHub GraphQL calendar");
+  const levels = ["NONE", "FIRST_QUARTILE", "SECOND_QUARTILE", "THIRD_QUARTILE", "FOURTH_QUARTILE"];
+  return parseContributions({ contributions: weeks.flatMap(week => week.contributionDays.map(day => ({
+    date: day.date, count: day.contributionCount, level: levels.indexOf(day.contributionLevel),
+  }))) });
 }

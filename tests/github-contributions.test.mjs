@@ -1,6 +1,15 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { parseContributions, parseGitHubCalendar, getContributions } from "../util/github-contributions.ts";
+import { parseContributions, parseGitHubCalendar, parseGraphQLCalendar, getContributions } from "../util/github-contributions.ts";
+
+test("official GraphQL counts retain GitHub's color levels and reject API errors", () => {
+  const response = { data: { user: { contributionsCollection: { contributionCalendar: { weeks: [{ contributionDays: [
+    { date: "2026-11-07", contributionCount: 12, contributionLevel: "FOURTH_QUARTILE" },
+  ] }] } } } } };
+  assert.deepEqual(parseGraphQLCalendar(response), [{ date: "2026-11-07", count: 12, level: 4 }]);
+  assert.throws(() => parseGraphQLCalendar({ errors: [{ message: "Bad credentials" }] }));
+  assert.throws(() => parseGraphQLCalendar({ data: { user: null } }));
+});
 
 const calendar = `<td data-level="2" id="day-1" data-date="2026-11-07"></td>
 <tool-tip for="day-1">12 contributions on November 7th.</tool-tip>

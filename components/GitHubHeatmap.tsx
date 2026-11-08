@@ -1,4 +1,8 @@
-import { getContributions, GITHUB_PROFILE } from "@/util/github-contributions";
+"use client";
+
+import { useEffect, useState } from "react";
+import Image from "next/image";
+import { parseContributions, GITHUB_PROFILE, type Contribution } from "@/lib/github-calendar";
 
 const DAY_MS = 86_400_000;
 const CELL = 11;
@@ -19,8 +23,38 @@ const lineStyle = {
   WebkitMaskImage: "repeating-linear-gradient(to right, black 0, black 1px, transparent 1px, transparent 6px)",
 };
 
-export async function GitHubHeatmap() {
-  const days = await getContributions();
+export function GitHubHeatmap() {
+  const [days, setDays] = useState<Contribution[] | null>(null);
+  const [imageFailed, setImageFailed] = useState(false);
+  const [attempt, setAttempt] = useState(0);
+
+  useEffect(() => {
+    const controller = new AbortController();
+    const cacheKey = "github-calendar:rawatpriyansh17:v1";
+    const load = async () => {
+      try {
+        const saved = localStorage.getItem(cacheKey);
+        if (saved) {
+          const cached = JSON.parse(saved);
+          if (typeof cached.savedAt === "number" && Date.now() - cached.savedAt < 7 * 86400000) {
+            setDays(parseContributions(cached));
+          }
+        }
+      } catch { /* Browser storage is optional. */ }
+      try {
+        const response = await fetch("/api/github", { signal: controller.signal });
+        if (!response.ok) return;
+        const contributions = parseContributions(await response.json());
+        if (controller.signal.aborted) return;
+        setDays(contributions);
+        try {
+          localStorage.setItem(cacheKey, JSON.stringify({ contributions, savedAt: Date.now() }));
+        } catch { /* A disabled/full cache must not hide the calendar. */ }
+      } catch { /* Keep cached data or the independently loaded chart visible. */ }
+    };
+    void load();
+    return () => controller.abort();
+  }, [attempt]);
   const start = days ? Date.parse(days[0].date) - new Date(days[0].date).getUTCDay() * DAY_MS : 0;
   const columns = days ? Math.floor((Date.parse(days.at(-1)!.date) - start) / DAY_MS / 7) + 1 : 0;
   const width = LABEL_WIDTH + columns * STEP;
@@ -69,8 +103,18 @@ export async function GitHubHeatmap() {
               <span className="ml-1">More</span>
             </div>
           </>
+        ) : !imageFailed ? (
+          <div dir="rtl" tabIndex={0} role="region" aria-label="GitHub contribution calendar; scroll horizontally to see the full year" className="overflow-x-auto pb-2 rounded-sm focus-visible:outline focus-visible:outline-offset-4">
+            <a href={GITHUB_PROFILE} target="_blank" rel="noopener noreferrer" className="block min-w-[520px]">
+              <Image key={attempt} unoptimized
+                src={`https://ghchart.rshah.org/rawatpriyansh17${attempt ? `?retry=${attempt}` : ""}`}
+                alt="GitHub contribution calendar for rawatpriyansh17 over the last year"
+                width={663} height={104} loading="eager"
+                className="block w-full" onError={() => setImageFailed(true)} />
+            </a>
+          </div>
         ) : (
-          <p className="text-[13px] text-zinc-500">The contribution calendar is temporarily unavailable. <a href={GITHUB_PROFILE} className="underline underline-offset-4">View on GitHub</a>.</p>
+          <p className="text-[13px] text-zinc-500">Calendar couldn’t load. <button type="button" className="underline underline-offset-4" onClick={() => { setImageFailed(false); setAttempt(value => value + 1); }}>Retry</button> or <a href={GITHUB_PROFILE} className="underline underline-offset-4">view on GitHub</a>.</p>
         )}
       </div>
     </section>
