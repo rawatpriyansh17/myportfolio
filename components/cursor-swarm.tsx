@@ -72,13 +72,23 @@ export function CursorSwarm() {
   }, []);
 
   useEffect(() => {
-    if (!ready || hasPlayed.current || pathname !== "/" ||
-      !document.documentElement.hasAttribute("data-swarm-intro")) return;
-    timer.current = setTimeout(() => {
-      hasPlayed.current = true;
-      start(true);
-    }, 0);
-    return () => clearTimeout(timer.current);
+    if (!ready || pathname !== "/") return;
+    const tryStart = () => {
+      clearTimeout(timer.current);
+      if (document.hidden || hasPlayed.current ||
+        !document.documentElement.hasAttribute("data-swarm-intro")) return;
+      timer.current = setTimeout(() => {
+        if (document.hidden) return;
+        hasPlayed.current = true;
+        start(true);
+      }, 0);
+    };
+    tryStart();
+    document.addEventListener("visibilitychange", tryStart);
+    return () => {
+      clearTimeout(timer.current);
+      document.removeEventListener("visibilitychange", tryStart);
+    };
   }, [ready, start, pathname]);
 
   useEffect(() => {
