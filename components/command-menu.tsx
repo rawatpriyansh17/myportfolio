@@ -111,7 +111,7 @@ export function CommandMenu() {
                 title="Replay the cursor swarm on this page"
                 className="relative group shrink-0 cursor-pointer rounded-[5px] focus-visible:outline-2 focus-visible:outline-offset-4 focus-visible:outline-zinc-500 motion-safe:active:scale-95"
             >
-                <span className="absolute -inset-[4.5px] rounded-[9px] border border-black/5 dark:border-white/5 pointer-events-none group-hover:border-black/10 dark:group-hover:border-white/10" />
+                <span aria-hidden="true" className="rebuild-glow absolute -inset-[4.5px] rounded-[9px] pointer-events-none" />
                 <span className="relative flex items-center gap-1 px-2 py-1 rounded-[5px] border border-black/5 dark:border-white/5 bg-zinc-50 hover:bg-zinc-100 dark:bg-[#09090b] dark:hover:bg-[#121214] text-zinc-500 hover:text-zinc-900 dark:text-zinc-400 dark:hover:text-zinc-100 text-[11px] leading-none font-medium font-mono shadow-sm shadow-black/20 dark:shadow-lg dark:shadow-black/80">
                     <RotateCcw aria-hidden="true" className="h-[11px] w-[11px]" />
                     <span className="leading-none mt-[0.5px]">Rebuild</span>

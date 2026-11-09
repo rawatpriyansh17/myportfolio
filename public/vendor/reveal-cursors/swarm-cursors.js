@@ -1716,10 +1716,6 @@
         this.bg.style.backgroundRepeat = pb.repeat;
       }
       this.makeIntroLogo();
-      // Match the already-visible loading image without fading/scaling it in again.
-      if (document.documentElement.hasAttribute("data-swarm-intro")) {
-        this.intro.classList.add("on");
-      }
       document.documentElement.appendChild(host);
       this.measure();
     }
@@ -3766,7 +3762,6 @@
       v.root.querySelector('[data-a="tour"]').hidden = true;
       v.root.querySelector('[data-a="speed"]').hidden = true;
       this.tour = false;
-      emit("swarm:complete");
     }
 
     destroy(reveal) {
@@ -3982,7 +3977,7 @@
     const ready = (fn) => (document.readyState === "complete" ? fn() : window.addEventListener("load", fn, { once: true }));
     ready(() => {
       const params = new URLSearchParams(location.search);
-      if (params.has("swarm") && params.get("swarm") !== "0") {
+      if (cfg.trigger !== "none" && params.has("swarm") && params.get("swarm") !== "0") {
         setTimeout(start, cfg.delay);
         return;
       }
